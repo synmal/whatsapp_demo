@@ -23,8 +23,7 @@ RSpec.describe Message, type: :model do
     it 'should create outbound messages' do
       message = Message.create_outbound(
         'whatsapp:+6014556061',
-        'Sup',
-        {}
+        'Sup'
       )
 
       expect(message).to be_an_instance_of(Message)
