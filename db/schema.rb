@@ -10,10 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_16_031821) do
+ActiveRecord::Schema.define(version: 2020_11_16_034922) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "messages", force: :cascade do |t|
+    t.string "type"
+    t.text "body"
+    t.jsonb "twilio_response"
+    t.bigint "recipient_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["recipient_id"], name: "index_messages_on_recipient_id"
+  end
 
   create_table "recipients", force: :cascade do |t|
     t.string "number"
@@ -21,4 +31,5 @@ ActiveRecord::Schema.define(version: 2020_11_16_031821) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "messages", "recipients"
 end
