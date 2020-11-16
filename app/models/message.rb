@@ -8,14 +8,14 @@ class Message < ApplicationRecord
   }
 
   class << self
-    def create_outbound(recipient_number, body, twilio_response)
+    def create_outbound(recipient_number, body)
       recipient = Recipient.find_or_create_by(number: recipient_number)
-
+      
       self.create!(
         message_type: :outbound,
         body: body,
         recipient: recipient,
-        twilio_response: twilio_response
+        twilio_response: twilio_response ||= {To: recipient_number, Body: body}
       )
     end
 
