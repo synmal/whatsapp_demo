@@ -1,7 +1,7 @@
 class Webhook::TwilioController < ApplicationController
   def create
     Message.create_inbound(twilio_params[:From], twilio_params[:Body], twilio_params.as_json)
-    render json: {message: 'Successfully created message'}, status: :created
+    head :created
   end
 
   private
