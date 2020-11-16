@@ -1,8 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe "Webhook::Twilio", type: :request do
-  pending 'should be able to create message'
-  pending 'should be able to use existing number'
-  pending 'should be able to reuse existing conversation'
-  pending 'should be able to create conversation and message'
+  it 'should be able to create inbound message' do
+    post '/webhook/twilio', params: {
+      Body: 'Sup',
+      From: 'whatsapp:+60145586061'
+    }
+
+    expect(response).to have_http_status(:created)
+  end
 end
