@@ -16,9 +16,9 @@ ActiveRecord::Schema.define(version: 2020_11_16_034922) do
   enable_extension "plpgsql"
 
   create_table "messages", force: :cascade do |t|
-    t.string "type"
+    t.string "message_type"
     t.text "body"
-    t.jsonb "twilio_response"
+    t.jsonb "twilio_response", default: {}
     t.bigint "recipient_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

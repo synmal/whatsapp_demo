@@ -1,8 +1,15 @@
 FactoryBot.define do
   factory :message do
-    type { "" }
     body { "MyText" }
-    twilio_response { "" }
-    recipient { nil }
+    twilio_response { {} }
+    recipient
+
+    trait :inbound do
+      type { 'inbound' }
+    end
+
+    trait :outbound do
+      type { 'outbound' }
+    end
   end
 end
