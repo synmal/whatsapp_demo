@@ -18,6 +18,9 @@ class Message < ApplicationRecord
   }
 
   class << self
+    # recipient number should be in the form of 'whatsapp:+601...'
+    # body should be a string
+    # The boolean template variable is to skip freeform_sendable validation
     def create_outbound(recipient_number, body, template: false)
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
@@ -66,6 +69,9 @@ class Message < ApplicationRecord
       message
     end
 
+    # recipient number should be in the form of 'whatsapp:+601...'
+    # template_name should be a symbol according to the TEMPLATE constant
+    # template_params is an array which replaces message template variables
     def create_outbound_with_template(recipient_number, template_name, template_params: [])
       template = self::TEMPLATES[template_name]
       
