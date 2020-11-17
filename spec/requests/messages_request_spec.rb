@@ -12,6 +12,7 @@ RSpec.describe "Messages", type: :request do
   end
 
   it 'able to create outbound message' do
+    message = create(:message, :real_inbound)
     request_params = {
       message: {
         to: 'whatsapp:+60145586061', 
@@ -19,6 +20,19 @@ RSpec.describe "Messages", type: :request do
       }
     }
     post '/messages', params: request_params
+    expect(response).to have_http_status(:created)
+  end
+
+  it 'should able to send template message' do
+    request_params = {
+      message: {
+        to: 'whatsapp:+0145586061',
+        template_name: 'code',
+        template_params: ['verification', '1234']
+      }
+    }
+
+    post '/messages/send_template', params: request_params
     expect(response).to have_http_status(:created)
   end
 end
