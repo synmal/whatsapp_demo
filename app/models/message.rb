@@ -3,7 +3,7 @@ class Message < ApplicationRecord
 
   belongs_to :recipient
   validates :message_type, :body, :recipient_id, presence: true
-  validate :freeform_sendable, if: Proc.new{ |message| message.outbound? && !message.template }
+  validate :freeform_sendable, if: Proc.new{ |message| message.outbound? && !message.template && message.recipient.platform != 'sms' }
 
   enum message_type: {
     outbound: 'outbound',

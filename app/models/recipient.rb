@@ -8,4 +8,15 @@ class Recipient < ApplicationRecord
 
     last_inbound_message.created_at + 24.hours >= Time.zone.now
   end
+
+  def platform
+    case number
+    when /whatsapp/
+      'whatsapp'
+    when /messenger/
+      'messenger'
+    else
+      'sms'
+    end
+  end
 end
