@@ -1,6 +1,7 @@
 class Message < ApplicationRecord
   belongs_to :recipient
   validates :message_type, :body, :recipient_id, presence: true
+  validate :freeform_sendable, if: Proc.new{ |message| message.outbound? }
 
   enum message_type: {
     outbound: 'outbound',
@@ -28,6 +29,14 @@ class Message < ApplicationRecord
         recipient: recipient,
         twilio_response: twilio_response
       )
+    end
+  end
+
+  private
+  def freeform_sendable
+    # byebug
+    unless recipient.able_to_send_freeform_text?
+      errors.add(:base, 'Unable to send freeform message. Last inbound message is more than 24 hours.')
     end
   end
 end

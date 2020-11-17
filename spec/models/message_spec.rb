@@ -21,6 +21,12 @@ RSpec.describe Message, type: :model do
 
   describe 'class methods' do
     it 'should create outbound messages' do
+      Message.create_inbound(
+        'whatsapp:+6014556061',
+        'Sup',
+        {}
+      )
+
       message = Message.create_outbound(
         'whatsapp:+6014556061',
         'Sup'
@@ -38,5 +44,14 @@ RSpec.describe Message, type: :model do
 
       expect(message).to be_an_instance_of(Message)
     end
+  end
+
+  it 'should not be able to create message if never converse before or last inbound more than 24 hours' do
+    expect{
+      Message.create_outbound(
+        'whatsapp:+6014556061',
+        'Sup'
+      )
+    }.to raise_error(ActiveRecord::RecordInvalid)
   end
 end
