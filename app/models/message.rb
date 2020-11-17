@@ -21,6 +21,15 @@ class Message < ApplicationRecord
     def create_outbound(recipient_number, body, template: false)
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
+      message = new(
+        message_type: :outbound,
+        body: body,
+        recipient: recipient,
+        template: template
+      )
+
+      message.save!
+
       if Rails.env.production? || Rails.env.development?
         response = TWILIO_CLIENT.messages.create(
           from: Rails.application.credentials.twilio[:phone],
@@ -51,16 +60,9 @@ class Message < ApplicationRecord
           subresource_uris: response.subresource_uris
         }
       end
-      
-      message = new(
-        message_type: :outbound,
-        body: body,
-        recipient: recipient,
-        twilio_response: twilio_response ||= {To: recipient_number, Body: body},
-        template: template
-      )
 
-      message.save!
+      message.update!(twilio_response: twilio_response)
+
       message
     end
 

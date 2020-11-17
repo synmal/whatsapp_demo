@@ -11,6 +11,8 @@ class MessagesController < ApplicationController
   def create
     Message.create_outbound(message_params[:to], message_params[:body])
     head :created
+  rescue ActiveRecord::RecordInvalid
+    head :bad_request
   end
 
   def send_template

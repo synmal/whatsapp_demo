@@ -35,4 +35,15 @@ RSpec.describe "Messages", type: :request do
     post '/messages/send_template', params: request_params
     expect(response).to have_http_status(:created)
   end
+
+  it 'should raise error when attempt to send message outside 24 hour window' do
+    request_params = {
+      message: {
+        to: 'whatsapp:+60145586061', 
+        body: 'Hi'
+      }
+    }
+    post '/messages', params: request_params
+    expect(response).to have_http_status(:bad_request)
+  end
 end
