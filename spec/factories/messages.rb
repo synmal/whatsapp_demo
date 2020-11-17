@@ -5,11 +5,11 @@ FactoryBot.define do
     recipient
 
     trait :inbound do
-      type { 'inbound' }
+      message_type { 'inbound' }
     end
 
     trait :outbound do
-      type { 'outbound' }
+      message_type { 'outbound' }
     end
   end
 end
