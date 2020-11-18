@@ -9,7 +9,8 @@ class MessagesController < ApplicationController
   end
 
   def create
-    Message.create_outbound(message_params[:to], message_params[:body])
+    # byebug
+    Message.create_outbound(message_params[:to], message_params[:body], images: message_params[:images])
     head :created
   rescue ActiveRecord::RecordInvalid
     head :bad_request
@@ -27,6 +28,6 @@ class MessagesController < ApplicationController
 
   private
   def message_params
-    params.require(:message).permit(:to, :body, :template_name, template_params: [])
+    params.require(:message).permit(:to, :body, :template_name, template_params: [], images: [])
   end
 end
