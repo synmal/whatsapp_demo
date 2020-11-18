@@ -9,7 +9,7 @@ class MessagesController < ApplicationController
   end
 
   def create
-    Message.create_outbound(message_params[:to], message_params[:body], images: message_params[:images])
+    Message.create_outbound(message_params[:to], message_params[:body], media: message_params[:images])
     head :created
   rescue ActiveRecord::RecordInvalid
     head :bad_request

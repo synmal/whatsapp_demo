@@ -39,7 +39,7 @@ class Message < ApplicationRecord
       end
 
       # If multiple media exists, its a good idea to send it as an individual message
-      if !media.empty? && !media[1..].nil? && !media[1..].empty?
+      if !media.nil? && !media.empty? && !media[1..].nil? && !media[1..].empty?
         create_outbound(recipient_number, nil, media: media[1..])
       end
 
