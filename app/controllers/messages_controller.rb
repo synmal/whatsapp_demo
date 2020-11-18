@@ -9,7 +9,6 @@ class MessagesController < ApplicationController
   end
 
   def create
-    # byebug
     Message.create_outbound(message_params[:to], message_params[:body], images: message_params[:images])
     head :created
   rescue ActiveRecord::RecordInvalid
