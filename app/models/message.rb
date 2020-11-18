@@ -34,11 +34,19 @@ class Message < ApplicationRecord
       message.save!
 
       if Rails.env.production? || Rails.env.development?
-        response = TWILIO_CLIENT.messages.create(
+        twilio_params = {
+          # should be :sms, :whatsapp or :messenger
           from: Rails.application.credentials.twilio[recipient.platform.to_sym],
           to: recipient_number,
           body: body
-        )
+        }
+
+        if recipient.platform == 'sms'
+          status_callback = Rails.application.routes.url_helpers.webhook_twilio_status_url(host: Rails.application.credentials.tunnel)
+          twilio_params[:status_callback] = status_callback
+        end
+
+        response = TWILIO_CLIENT.messages.create(twilio_params)
 
         twilio_response = {
           body: response.body,
