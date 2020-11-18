@@ -21,7 +21,8 @@ class Message < ApplicationRecord
     # recipient number should be in the form of 'whatsapp:+601...'
     # body should be a string
     # The boolean template variable is to skip freeform_sendable validation
-    def create_outbound(recipient_number, body = "", template: false, media: [])
+    # Media is an array of of media URL
+    def create_outbound(recipient_number, body = nil, template: false, media: [])
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
       message = new(
@@ -42,9 +43,7 @@ class Message < ApplicationRecord
         }
 
         unless media.empty?
-          byebug
-          # ['https://i.imgur.com/pTxwDa4.jpg', 'https://i.imgur.com/1vVd9Pk.png']
-          twilio_params[:media_url] = media
+          twilio_params[:media_url] = media.first
         end
 
         if recipient.platform == 'sms'
@@ -82,6 +81,11 @@ class Message < ApplicationRecord
 
       message.twilio_response = twilio_response
       message.save!
+
+      if !media.empty? && !media[1..].nil? && !media[1..].empty?
+        create_outbound(recipient_number, nil, media: media[1..])
+      end
+
       message
     end
 
