@@ -16,6 +16,6 @@ class Webhook::TwilioController < ApplicationController
 
   private
   def twilio_params
-    params.permit(:SmsMessageSid, :NumMedia, :SmsSid, :SmsStatus, :Body, :To, :NumSegments, :MessageSid, :AccountSid, :From, :ApiVersion)
+    params.permit(:SmsMessageSid, :NumMedia, :SmsSid, :SmsStatus, :Body, :To, :NumSegments, :MessageSid, :AccountSid, :From, :ApiVersion, :MediaUrl0, :MediaContentType0)
   end
 end
