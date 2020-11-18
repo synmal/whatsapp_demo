@@ -21,7 +21,7 @@ class Message < ApplicationRecord
     # recipient number should be in the form of 'whatsapp:+601...'
     # body should be a string
     # The boolean template variable is to skip freeform_sendable validation
-    def create_outbound(recipient_number, body, template: false)
+    def create_outbound(recipient_number, body, template: false, media: [])
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
       message = new(
@@ -40,6 +40,10 @@ class Message < ApplicationRecord
           to: recipient_number,
           body: body
         }
+
+        unless media.empty?
+          twilio_params[:media_url] = media
+        end
 
         if recipient.platform == 'sms'
           status_callback = Rails.application.routes.url_helpers.webhook_twilio_status_url(host: Rails.application.credentials.tunnel)
