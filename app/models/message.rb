@@ -2,7 +2,7 @@ class Message < ApplicationRecord
   attr_accessor :template
 
   belongs_to :recipient
-  validates :message_type, :body, :recipient_id, presence: true
+  validates :message_type, :recipient_id, presence: true
   validate :freeform_sendable, on: :create, if: Proc.new{ |message| message.outbound? && !message.template && message.recipient.platform != 'sms' }
 
   enum message_type: {
@@ -21,7 +21,7 @@ class Message < ApplicationRecord
     # recipient number should be in the form of 'whatsapp:+601...'
     # body should be a string
     # The boolean template variable is to skip freeform_sendable validation
-    def create_outbound(recipient_number, body, template: false, media: [])
+    def create_outbound(recipient_number, body = "", template: false, media: [])
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
       message = new(
@@ -42,6 +42,8 @@ class Message < ApplicationRecord
         }
 
         unless media.empty?
+          byebug
+          # ['https://i.imgur.com/pTxwDa4.jpg', 'https://i.imgur.com/1vVd9Pk.png']
           twilio_params[:media_url] = media
         end
 

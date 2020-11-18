@@ -3,7 +3,6 @@ require 'rails_helper'
 RSpec.describe Message, type: :model do
   describe 'validations' do
     it{ should validate_presence_of(:message_type) }
-    it{ should validate_presence_of(:body) }
     it{ should validate_presence_of(:recipient_id) }
     it{
       should define_enum_for(:message_type).
