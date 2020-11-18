@@ -35,7 +35,7 @@ class Message < ApplicationRecord
 
       if Rails.env.production? || Rails.env.development?
         response = TWILIO_CLIENT.messages.create(
-          from: Rails.application.credentials.twilio[:phone],
+          from: Rails.application.credentials.twilio[recipient.platform.to_sym],
           to: recipient_number,
           body: body
         )
