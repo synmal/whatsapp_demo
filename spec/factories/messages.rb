@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :message do
     body { "MyText" }
+    sid { "sid" }
     twilio_response { {} }
     recipient
 

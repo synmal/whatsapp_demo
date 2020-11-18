@@ -31,8 +31,6 @@ class Message < ApplicationRecord
         template: template
       )
 
-      message.save!
-
       if Rails.env.production? || Rails.env.development?
         response = TWILIO_CLIENT.messages.create(
           from: Rails.application.credentials.twilio[:phone],
@@ -62,10 +60,12 @@ class Message < ApplicationRecord
           api_version: response.api_version,
           subresource_uris: response.subresource_uris
         }
+
+        message.sid = response.sid
       end
 
-      message.update!(twilio_response: twilio_response)
-
+      message.twilio_response = twilio_response
+      message.save!
       message
     end
 
@@ -74,11 +74,11 @@ class Message < ApplicationRecord
     # template_params is an array which replaces message template variables
     def create_outbound_with_template(recipient_number, template_name, template_params: [])
       template = self::TEMPLATES[template_name]
-      
+
       template_params.each_with_index do |params, index|
         template.gsub!(/\{\{#{index + 1}\}\}/, params)
       end
-      
+
       create_outbound(recipient_number, template, template: true)
     end
 
