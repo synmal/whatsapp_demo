@@ -3,7 +3,7 @@ class Message < ApplicationRecord
 
   belongs_to :recipient
   validates :message_type, :body, :recipient_id, presence: true
-  validate :freeform_sendable, if: Proc.new{ |message| message.outbound? && !message.template && message.recipient.platform != 'sms' }
+  validate :freeform_sendable, on: :create, if: Proc.new{ |message| message.outbound? && !message.template && message.recipient.platform != 'sms' }
 
   enum message_type: {
     outbound: 'outbound',
@@ -30,6 +30,8 @@ class Message < ApplicationRecord
         recipient: recipient,
         template: template
       )
+
+      message.save!
 
       if Rails.env.production? || Rails.env.development?
         response = TWILIO_CLIENT.messages.create(
