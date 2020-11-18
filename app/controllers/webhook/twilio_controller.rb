@@ -1,6 +1,6 @@
 class Webhook::TwilioController < ApplicationController
   def create
-    Message.create_inbound(twilio_params[:From], twilio_params[:Body], twilio_params.as_json)
+    Message.create_inbound(params[:From], params[:Body], params.as_json(except: [:controller, :action]))
     head :created
   end
 
