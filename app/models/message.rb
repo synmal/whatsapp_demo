@@ -10,6 +10,8 @@ class Message < ApplicationRecord
     inbound: 'inbound'
   }
 
+  has_many_attached :attachments
+
   # Sandbox templates
   TEMPLATES = {
     code: 'Your {{1}} code is {{2}}',
@@ -62,13 +64,30 @@ class Message < ApplicationRecord
     def create_inbound(recipient_number, body, twilio_response)
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
-      self.create!(
+      message = self.create!(
         message_type: :inbound,
         body: body,
         recipient: recipient,
         twilio_response: twilio_response
       )
+
+      message.attach_attachments
+
+      message
     end
+  end
+
+  def attach_attachments
+    no_of_media = twilio_response['NumMedia'].to_i
+    no_of_media.times do |count|
+      url = twilio_response["MediaUrl#{count}"]
+      content_type = twilio_response["MediaContentType#{count}"]
+      MessageAttachmentWorker.perform_async(id, url, content_type, count)
+    end
+  end
+
+  def attachment_urls
+    attachments.blobs.map{ |attachment| Rails.application.routes.url_helpers.rails_blob_path(attachment, only_path: true) }
   end
 
   private

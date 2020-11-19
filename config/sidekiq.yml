@@ -1,0 +1,7 @@
+development:
+  :concurrency: 5
+
+:queues:
+  - default
+  - critical
+  - active_storage_analysis
