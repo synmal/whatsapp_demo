@@ -35,9 +35,12 @@ class Message < ApplicationRecord
       )
 
       message.save!
+      if media&.first
+        message.attachments.attach(media.first)
+      end
 
       if Rails.env.production? || Rails.env.development?
-        SendWhatsappMessageWorker.perform_async(message.id, body, media)
+        SendMessageWorker.perform_async(message.id, body)
       end
 
       # If multiple media exists, its a good idea to send it as an individual message

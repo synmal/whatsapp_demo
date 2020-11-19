@@ -1,7 +1,7 @@
-class SendWhatsappMessageWorker
+class SendMessageWorker
   include Sidekiq::Worker
 
-  def perform(message_id, body = nil, media = [])
+  def perform(message_id, body = nil, media = nil)
     message = Message.find(message_id)
     recipient = message.recipient
 
@@ -12,8 +12,9 @@ class SendWhatsappMessageWorker
       body: body
     }
 
-    unless media.empty?
-      twilio_params[:media_url] = media.first
+    if message.attachments.attached?
+      media_url = Rails.application.routes.url_helpers.rails_blob_url(message.attachments.last, host: Rails.application.credentials.tunnel)
+      twilio_params[:media_url] = media_url
     end
 
     if recipient.platform == 'sms'
@@ -21,9 +22,8 @@ class SendWhatsappMessageWorker
       twilio_params[:status_callback] = status_callback
     end
 
+    p twilio_params
     response = TWILIO_CLIENT.messages.create(twilio_params)
-
-    pp response
 
     twilio_response = {
       body: response.body,
