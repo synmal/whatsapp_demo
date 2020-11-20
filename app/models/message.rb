@@ -3,6 +3,8 @@ class Message < ApplicationRecord
 
   belongs_to :recipient
   validates :message_type, :recipient_id, presence: true
+
+  # Checks if recipient able to receive freeform messages (Only for messenger and whatsapp)
   validate :freeform_sendable, on: :create, if: Proc.new{ |message| message.outbound? && !message.template && message.recipient.platform != 'sms' }
 
   enum message_type: {
@@ -13,6 +15,7 @@ class Message < ApplicationRecord
   has_many_attached :attachments
 
   # Sandbox templates
+  # Add your templates here if there is approved custom templates
   TEMPLATES = {
     code: 'Your {{1}} code is {{2}}',
     appointment_reminder: 'Your appointment is coming up on {{1}} at {{2}}',
@@ -20,10 +23,12 @@ class Message < ApplicationRecord
   }
 
   class << self
-    # recipient number should be in the form of 'whatsapp:+601...'
-    # body should be a string
-    # The boolean template variable is to skip freeform_sendable validation
-    # Media is an array of of media URL
+    # recipient_number should be in the form of 'whatsapp:+601...'.
+    # body should be a string.
+    # The boolean template variable is to skip freeform_sendable validation.
+    # Media is an array of HTTPUploadedFile object.
+    # Media is sent one by one (Restriction by Twilio), which is why it is calling
+    # the method again until the media array is empty.
     def create_outbound(recipient_number, body = nil, template: false, media: [])
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
@@ -57,6 +62,7 @@ class Message < ApplicationRecord
     def create_outbound_with_template(recipient_number, template_name, template_params: [])
       template = self::TEMPLATES[template_name]
 
+      # This replaces handlebars to template_params
       template_params.each_with_index do |params, index|
         template.gsub!(/\{\{#{index + 1}\}\}/, params)
       end
@@ -64,6 +70,7 @@ class Message < ApplicationRecord
       create_outbound(recipient_number, template, template: true)
     end
 
+    # Creates incoming messsage
     def create_inbound(recipient_number, body, twilio_response)
       recipient = Recipient.find_or_create_by(number: recipient_number)
 
@@ -80,6 +87,8 @@ class Message < ApplicationRecord
     end
   end
 
+  # Only for incoming message.
+  # It will attach each images in a worker
   def attach_attachments
     no_of_media = twilio_response['NumMedia'].to_i
     no_of_media.times do |count|
@@ -89,6 +98,7 @@ class Message < ApplicationRecord
     end
   end
 
+  # Gets an array of attachment URL
   def attachment_urls
     attachments.blobs.map{ |attachment| Rails.application.routes.url_helpers.rails_blob_path(attachment, only_path: true) }
   end

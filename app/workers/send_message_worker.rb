@@ -17,6 +17,8 @@ class SendMessageWorker
       twilio_params[:media_url] = media_url
     end
 
+    # Only applicable to SMS
+    # Needed to pass in `status_callback` argument to get delivery status
     if recipient.platform == 'sms'
       status_callback = Rails.application.routes.url_helpers.webhook_twilio_status_url(host: Rails.application.credentials.tunnel)
       twilio_params[:status_callback] = status_callback
