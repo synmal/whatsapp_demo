@@ -38,14 +38,14 @@ class Message < ApplicationRecord
       if media&.first
         message.attachments.attach(media.first)
       end
-
+      
       if Rails.env.production? || Rails.env.development?
-        SendMessageWorker.perform_async(message.id, body)
+        SendMessageWorker.perform_async(message.id)
       end
 
       # If multiple media exists, its a good idea to send it as an individual message
       if !media.nil? && !media.empty? && !media[1..].nil? && !media[1..].empty?
-        create_outbound(recipient_number, nil, media: media[1..])
+        create_outbound(recipient_number, media: media[1..])
       end
 
       message

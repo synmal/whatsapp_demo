@@ -1,7 +1,7 @@
 class SendMessageWorker
   include Sidekiq::Worker
 
-  def perform(message_id, body = nil, media = nil)
+  def perform(message_id, media = nil)
     message = Message.find(message_id)
     recipient = message.recipient
 
@@ -9,7 +9,7 @@ class SendMessageWorker
       # should be :sms, :whatsapp or :messenger
       from: Rails.application.credentials.twilio[recipient.platform.to_sym],
       to: recipient.number,
-      body: body
+      body: message.body
     }
 
     if message.attachments.attached?
@@ -22,7 +22,6 @@ class SendMessageWorker
       twilio_params[:status_callback] = status_callback
     end
 
-    p twilio_params
     response = TWILIO_CLIENT.messages.create(twilio_params)
 
     twilio_response = {
